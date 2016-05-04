@@ -19,25 +19,47 @@ import java.util.Random;
 
 public class MainActivity extends SimpleBaseGameActivity {
 
+    private static final int CAMERA_WIDTH = 1280;
+    private static final int CAMERA_HEIGHT = 800;
+    private static final int CENTER_X = CAMERA_WIDTH / 2;
+    private static final int CENTER_Y = CAMERA_HEIGHT / 2;
+    private static final int TILE_ROWS = 5;
+    private static final int TILE_COLUMNS = 8;
+
     private RepeatingSpriteBackground background;
-    private List<Sprite> sprites = new ArrayList<>();
+    private List<Sprite> units = new ArrayList<>();
+    private List<Sprite> tiles = new ArrayList<>();
 
     @Override
     public EngineOptions onCreateEngineOptions() {
         Camera camera = new Camera(0, 0, 1280, 800);
         return new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR,
                 new RatioResolutionPolicy(camera.getWidth(), camera.getHeight()), camera);
-
     }
 
     @Override
     protected void onCreateResources() throws IOException {
         TextureLoader textureLoader = new TextureLoader(this, getTextureManager());
+
         background = new RepeatingSpriteBackground(getEngine().getCamera().getWidth(), getEngine().getCamera().getHeight(),
                 textureLoader.loadBitmap("dirt_grass_50.png", TextureOptions.REPEATING_BILINEAR), getVertexBufferObjectManager());
-        Map<String, TextureRegion> textureRegions = textureLoader.loadAtlas("units.png", "units.txt");
-        for (Map.Entry<String, TextureRegion> entry : textureRegions.entrySet()) {
-            sprites.add(new Sprite(0, 0, entry.getValue(), getVertexBufferObjectManager()));
+
+        TextureRegion tileTextureRegion = textureLoader.loadBitmap("tile.png");
+        float tileWidth = tileTextureRegion.getWidth();
+        float tileHeight = tileTextureRegion.getHeight();
+        for (int row = 0; row < TILE_ROWS; row++) {
+            for (int column = 0; column < TILE_COLUMNS; column++) {
+                float x = CENTER_X + (column - TILE_COLUMNS / 2f) * tileWidth + tileWidth / 2f;
+                float y = CENTER_Y + (row - TILE_ROWS / 2f) * tileHeight + tileWidth / 2f;
+                tiles.add(new Sprite(x, y, tileTextureRegion, getVertexBufferObjectManager()));
+            }
+        }
+
+        Map<String, TextureRegion> unitsTextureRegions = textureLoader.loadAtlas("units.png", "units.txt");
+        Random random = new Random();
+        for (Map.Entry<String, TextureRegion> entry : unitsTextureRegions.entrySet()) {
+            Sprite randomTile = tiles.get(random.nextInt(tiles.size()));
+            units.add(new Sprite(randomTile.getX(), randomTile.getY(), entry.getValue(), getVertexBufferObjectManager()));
         }
     }
 
@@ -45,10 +67,10 @@ public class MainActivity extends SimpleBaseGameActivity {
     protected Scene onCreateScene() {
         Scene scene = new Scene();
         scene.setBackground(background);
-        Random random = new Random();
-        for (Sprite sprite : sprites) {
-            sprite.setX(random.nextInt((int) getEngine().getCamera().getWidth() - 200) + 100);
-            sprite.setY(random.nextInt((int) getEngine().getCamera().getHeight() - 200) + 100);
+        for (Sprite sprite : tiles) {
+            scene.attachChild(sprite);
+        }
+        for (Sprite sprite : units) {
             scene.attachChild(sprite);
         }
         return scene;
