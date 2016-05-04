@@ -32,11 +32,10 @@ public class MainActivity extends SimpleBaseGameActivity {
 
     @Override
     protected void onCreateResources() throws IOException {
-        BitmapLoader bgLoader = new BitmapLoader(this, getTextureManager());
+        TextureLoader textureLoader = new TextureLoader(this, getTextureManager());
         background = new RepeatingSpriteBackground(getEngine().getCamera().getWidth(), getEngine().getCamera().getHeight(),
-                bgLoader.loadTexture("dirt_grass_50.png", TextureOptions.REPEATING_BILINEAR), getVertexBufferObjectManager());
-        AtlasLoader atlasLoader = new AtlasLoader(this, getTextureManager());
-        Map<String, TextureRegion> textureRegions = atlasLoader.loadTexture("units");
+                textureLoader.loadBitmap("dirt_grass_50.png", TextureOptions.REPEATING_BILINEAR), getVertexBufferObjectManager());
+        Map<String, TextureRegion> textureRegions = textureLoader.loadAtlas("units.png", "units.txt");
         for (Map.Entry<String, TextureRegion> entry : textureRegions.entrySet()) {
             sprites.add(new Sprite(0, 0, entry.getValue(), getVertexBufferObjectManager()));
         }
