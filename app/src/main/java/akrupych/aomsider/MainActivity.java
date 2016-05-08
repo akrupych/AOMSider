@@ -1,6 +1,7 @@
 package akrupych.aomsider;
 
 import android.annotation.TargetApi;
+import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -24,29 +25,36 @@ import java.util.Random;
 
 public class MainActivity extends SimpleBaseGameActivity {
 
-    private static final int CAMERA_WIDTH = 1280;
-    private static final int CAMERA_HEIGHT = 800;
-    private static final int CENTER_X = CAMERA_WIDTH / 2;
-    private static final int CENTER_Y = CAMERA_HEIGHT / 2;
     private static final int ICON_PANEL_HEIGHT = 200;
     private static final int TILE_ROWS = 4;
     private static final int TILE_COLUMNS = 8;
+
+    private static int cameraWidth;
+    private static int cameraHeight;
+    private static int centerX;
+    private static int centerY;
 
     private RepeatingSpriteBackground background;
     private List<Sprite> units = new ArrayList<>();
     private List<Sprite> tiles = new ArrayList<>();
     private IconsPanel iconsPanel;
 
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
     protected void onCreate(Bundle pSavedInstanceState) {
+        Point size = new Point();
+        getWindowManager().getDefaultDisplay().getRealSize(size);
+        cameraWidth = size.x;
+        cameraHeight = size.y;
+        centerX = cameraWidth / 2;
+        centerY = cameraHeight / 2;
         super.onCreate(pSavedInstanceState);
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
     @Override
     public EngineOptions onCreateEngineOptions() {
-        Camera camera = new Camera(0, 0, 1280, 800);
+        Camera camera = new Camera(0, 0, cameraWidth, cameraHeight);
         return new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR,
                 new RatioResolutionPolicy(camera.getWidth(), camera.getHeight()), camera);
     }
@@ -55,9 +63,9 @@ public class MainActivity extends SimpleBaseGameActivity {
     protected void onCreateResources() throws IOException {
         TextureLoader textureLoader = new TextureLoader(this, getTextureManager());
 
-        background = new RepeatingSpriteBackground(CAMERA_WIDTH, CAMERA_HEIGHT,
+        background = new RepeatingSpriteBackground(cameraWidth, cameraHeight,
                 textureLoader.loadBitmap("dirt_grass_50.png", TextureOptions.REPEATING_BILINEAR), getVertexBufferObjectManager());
-        iconsPanel = new IconsPanel(CENTER_X, ICON_PANEL_HEIGHT / 2, CAMERA_WIDTH, ICON_PANEL_HEIGHT,
+        iconsPanel = new IconsPanel(centerX, ICON_PANEL_HEIGHT / 2, cameraWidth, ICON_PANEL_HEIGHT,
                 textureLoader.loadBitmap("panel_left.png"),
                 textureLoader.loadBitmap("panel_center.png"),
                 textureLoader.loadBitmap("panel_right.png"),
@@ -68,8 +76,8 @@ public class MainActivity extends SimpleBaseGameActivity {
         float tileHeight = tileTextureRegion.getHeight();
         for (int row = 0; row < TILE_ROWS; row++) {
             for (int column = 0; column < TILE_COLUMNS; column++) {
-                float x = CENTER_X + (column - TILE_COLUMNS / 2f) * tileWidth + tileWidth / 2f;
-                float y = CENTER_Y + (row - TILE_ROWS / 2f) * tileHeight + tileWidth / 2f + iconsPanel.getHeight() / 2f;
+                float x = centerX + (column - TILE_COLUMNS / 2f) * tileWidth + tileWidth / 2f;
+                float y = centerY + (row - TILE_ROWS / 2f) * tileHeight + tileWidth / 2f + iconsPanel.getHeight() / 2f;
                 tiles.add(new Sprite(x, y, tileTextureRegion, getVertexBufferObjectManager()));
             }
         }
