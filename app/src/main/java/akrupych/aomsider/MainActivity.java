@@ -1,5 +1,10 @@
 package akrupych.aomsider;
 
+import android.annotation.TargetApi;
+import android.os.Build;
+import android.os.Bundle;
+import android.view.View;
+
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
@@ -31,6 +36,13 @@ public class MainActivity extends SimpleBaseGameActivity {
     private List<Sprite> units = new ArrayList<>();
     private List<Sprite> tiles = new ArrayList<>();
     private IconsPanel iconsPanel;
+
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    @Override
+    protected void onCreate(Bundle pSavedInstanceState) {
+        super.onCreate(pSavedInstanceState);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+    }
 
     @Override
     public EngineOptions onCreateEngineOptions() {
